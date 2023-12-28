@@ -1,0 +1,18 @@
+.filters-layout{
+    border: 1px solid #1e00ff;
+}
+
+.filters-header{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    border-bottom: 1px solid #1e00ff;
+    padding: 5px;
+}
+
+.inputs-box{
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    grid-gap: 15px 100px;
+    padding: 5px;
+}

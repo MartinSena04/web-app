@@ -1,0 +1,12 @@
+.home{
+    display: grid;
+    grid-template-columns: 1fr 5fr;
+    grid-template-rows: 1fr 10fr;
+    min-height: 100vh;
+}
+
+main{
+    padding: 20px;
+    overflow-y: auto;
+    height: 700px;
+}

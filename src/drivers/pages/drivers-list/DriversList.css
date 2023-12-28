@@ -1,0 +1,22 @@
+.drivers-table{
+    border: 1px solid #ff0000;
+    width: 100%;
+}
+
+.drivers-list{
+    display: flex;
+    flex-direction: column;
+    row-gap: 30px;
+}
+
+.drivers-headers{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
+.pagination{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
+
