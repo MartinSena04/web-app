@@ -10,13 +10,16 @@ import { debounce } from "../../../shared/utilites/debounce";
 import DriverService from "../../services/DriverService";
 import { FrontDriver, apiToFrontDriver } from "../../types/types";
 import { createRoutesFromChildren } from "react-router-dom";
+import { convertEnToEs } from "../../../shared/utilites/ConvertEnToEs";
 
 //TODOS:
 // 1. Mostrar un loader mientras se hace la petición
 // 2. 
 
 
+
 const initialDrivers = {}
+
 
 async function filtersDrivers(page, offset, setDrivers, filters, limit,setTotalDrivers, isfilterChange, setNoResults,setLoading) {
 
@@ -36,7 +39,7 @@ async function filtersDrivers(page, offset, setDrivers, filters, limit,setTotalD
 
     if (data.drivers.length === 0){
         setNoResults(true)
-        setDrivers({})
+        setDrivers(initialDrivers)
         return
     }
     else setNoResults(false)
@@ -69,7 +72,6 @@ export default function DriversList() {
     const [noResults, setNoResults] = useState(false)
     const [filterChange, setFilterChange] = useState(false)
     const [loading, setLoading] = useState(true)
-    const [isFirstReload, setIsFirstReload] = useState(true)
     const filters = useAppSelector(state => state.drivers.filters)
     const dispatch = useAppDispatch()
     const isFirstRender = useRef(true)
@@ -88,7 +90,9 @@ export default function DriversList() {
     },[])
 
     useEffect(() => {
+
         if (checkIsFirstRender()) return
+
         setPage(1)
         setFilterChange(state => !state)
 
@@ -135,7 +139,7 @@ export default function DriversList() {
                         event.preventDefault()
                     }}>Buscar</button>
             </div>
-            <ListLayout page={page} pageSize={pageSize} setPage={setPage} setPageSize={setPageSize} total={totalDrivers} setTotal={setTotalDrivers} setData={setDrivers} data={drivers} filterData={filtersDrivers} filters={filters} setNoResults={setNoResults} noResults={noResults} loading={loading} setLoading={setLoading} isFirstReload={isFirstReload}>
+            <ListLayout page={page} pageSize={pageSize} setPage={setPage} setPageSize={setPageSize} total={totalDrivers} setTotal={setTotalDrivers} setData={setDrivers} data={drivers} filterData={filtersDrivers} filters={filters} setNoResults={setNoResults} noResults={noResults} loading={loading} setLoading={setLoading}>
                 <table className="drivers-table">
                     <thead> 
                         <tr className="drivers-header">
@@ -150,7 +154,7 @@ export default function DriversList() {
                             <ListRowLayout id={driver.id}>
                                 <td>{driver.id}</td>
                                 <td>{driver.names}</td>
-                                <td>{driver.state}</td>
+                                <td>{convertEnToEs(driver.state)}</td>
                                 <td>{driver.cellphoneWork}</td>
                             </ListRowLayout>
                         )):null}
