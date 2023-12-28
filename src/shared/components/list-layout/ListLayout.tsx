@@ -1,7 +1,8 @@
+import { ChangePageSize } from '../../utilites/ChangePageSize';
 import './ListLayout.css';
 import { useEffect } from 'react';
 
-export default function ListLayout({children, page, pageSize, setPageSize, setPage, total, data, setTotal, setData, filters, filterData, setNoResults, noResults, loading, setLoading, isFirstReload}){
+export default function ListLayout({children, page, pageSize, setPageSize, setPage, total, data, setTotal, setData, filters, filterData, setNoResults, noResults, loading, setLoading}){
 
     function forward(){
         if(page === 1) return
@@ -14,23 +15,22 @@ export default function ListLayout({children, page, pageSize, setPageSize, setPa
     }
 
     useEffect(() => {
-        console.log('isFirstReload', isFirstReload)
-        if (isFirstReload) return
+
         if (data.length < page*pageSize && page*pageSize <= total){
-            console.log('acaa')
             
-            filterData((page-1)*pageSize, setData,filters, pageSize, setTotal, true, setNoResults, setLoading)
+            filterData(page, (page-1)*pageSize, setData,filters, pageSize, setTotal, true, setNoResults, setLoading)
         }
         if (page*pageSize > total && total > 0) {
             setPage(Math.ceil(total/pageSize))
         }
+
+        setData(ChangePageSize(data, pageSize))
     }, [pageSize])
 
     useEffect(() => {
-        console.log('isFirstReload', isFirstReload)
 
-        if (total> data.length) {
-            filterData((page-1)*pageSize, setData,filters, pageSize, setTotal,false, setNoResults, setLoading)
+        if (!data[page] || (data[page].length < pageSize && page*pageSize <= total)) {
+            filterData(page, (page-1)*pageSize, setData,filters, pageSize, setTotal,false, setNoResults, setLoading)
         }
     }, [page])
     
@@ -50,7 +50,7 @@ export default function ListLayout({children, page, pageSize, setPageSize, setPa
             {noResults && <div className="no-drivers">
                 <p>No se encontraron resultados</p>
                 </div>}
-            {data.length > 0 && <div className="pagination">
+            {Object.keys(data).length > 0 && <div className="pagination">
                 <div>
                     <p>Mostrando {((page-1)*pageSize) + 1} a {page*pageSize > total? total : page*pageSize} de {total}</p>
                 </div>

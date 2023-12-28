@@ -16,9 +16,9 @@ import { createRoutesFromChildren } from "react-router-dom";
 // 2. 
 
 
-const initialDrivers = []
+const initialDrivers = {}
 
-async function filtersDrivers(offset, setDrivers,drivers, filters, limit,setTotalDrivers, isfilterChange, setNoResults,setLoading, isFirstReload) {
+async function filtersDrivers(page, offset, setDrivers, filters, limit,setTotalDrivers, isfilterChange, setNoResults,setLoading) {
 
     //Si no hay filtros, no hacer la petición
     if (!filters.id && !filters.names && !filters.cellphoneWork && !filters.state) return
@@ -29,13 +29,16 @@ async function filtersDrivers(offset, setDrivers,drivers, filters, limit,setTota
     }).join('&')
 
     //Hacer la petición al servidor
-    const data = await DriverService.getFilteredDrivers(filtersString, offset, limit, isFirstReload)
+    const data = await DriverService.getFilteredDrivers(filtersString, offset, limit, isfilterChange)
 
     setLoading(false)
     if (!data)return
-    console.log('data', data)
 
-    if (data.drivers.length === 0)setNoResults(true)
+    if (data.drivers.length === 0){
+        setNoResults(true)
+        setDrivers({})
+        return
+    }
     else setNoResults(false)
 
     if (data.total) setTotalDrivers(data.total)
@@ -43,17 +46,12 @@ async function filtersDrivers(offset, setDrivers,drivers, filters, limit,setTota
     //Actualizar el estado de los drivers
     const newDrivers = data.drivers.map(apiToFrontDriver)
 
-    const newList = new Array(data.total).fill(null)
-    newDrivers.forEach((driver) => {
-        newList[driver.id-1] = driver
-    })
+    const newData = {}
+    newData[page] = newDrivers
 
+    if (isfilterChange) setDrivers(newData)
 
-
-    console.log('isfilterChange', isfilterChange)
-    if (!isfilterChange){
-        d
-    }
+    else setDrivers(state => ({...state, ...newData}))
 
 
 }
@@ -66,10 +64,10 @@ const debouncedFiltersDrivers = debounce(filtersDrivers, 500)
 export default function DriversList() {
 
     const { page, setPage, pageSize, setPageSize} = useContext(DriversContext)
-    const [drivers, setDrivers] = useState<FrontDriver[]>(initialDrivers)	
+    const [drivers, setDrivers] = useState(initialDrivers)	
     const [totalDrivers, setTotalDrivers] = useState(0)
     const [noResults, setNoResults] = useState(false)
-    const [isNewFilter, setIsNewFilter] = useState(false)
+    const [filterChange, setFilterChange] = useState(false)
     const [loading, setLoading] = useState(true)
     const [isFirstReload, setIsFirstReload] = useState(true)
     const filters = useAppSelector(state => state.drivers.filters)
@@ -86,36 +84,28 @@ export default function DriversList() {
     }
 
     useEffect(() =>{
-
-        if (checkIsFirstRender()) return
-        
-        setIsFirstReload(false)
+        filtersDrivers(page, (page-1)*pageSize, setDrivers, filters, pageSize, setTotalDrivers, true, setNoResults, setLoading)
     },[])
 
     useEffect(() => {
-
-        if(!isFirstReload) setPage(1)
-
-        setIsNewFilter(state => !state)
+        if (checkIsFirstRender()) return
+        setPage(1)
+        setFilterChange(state => !state)
 
     },[filters])
 
     useEffect(() => {
-        debouncedFiltersDrivers((page-1)*pageSize, setDrivers,drivers, filters, pageSize, setTotalDrivers, true, setNoResults, setLoading, isFirstReload)
 
-    },[isNewFilter])
+
+        debouncedFiltersDrivers(page, (page-1)*pageSize, setDrivers, filters, pageSize, setTotalDrivers, true, setNoResults, setLoading)
+
+    },[filterChange])
 
 
     function handleFiltersChange(event) {
         event.preventDefault()
         const { name, value } = event.target
         dispatch(updateFilters({name, value}))
-    }
-
-
-
-    function finalIndex() {
-        return page*pageSize > drivers.length ? drivers.length : page*pageSize
     }
 
     function cleanFilters() {
@@ -156,14 +146,14 @@ export default function DriversList() {
                         </tr>
                     </thead>
                     <tbody>
-                        {drivers.slice(((page-1)*pageSize),finalIndex()).map((driver) => (
+                        {drivers[page] ? drivers[page].map((driver) => (
                             <ListRowLayout id={driver.id}>
                                 <td>{driver.id}</td>
                                 <td>{driver.names}</td>
                                 <td>{driver.state}</td>
                                 <td>{driver.cellphoneWork}</td>
                             </ListRowLayout>
-                        ))}
+                        )):null}
                     </tbody>
                 </table>
             </ListLayout>
