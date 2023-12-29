@@ -2,7 +2,7 @@ import axios from 'axios';
 
 //Axios config ---------------------------------------------------
 const axiosInstance = axios.create({
-    baseURL: 'http://127.0.0.1:5000',
+    baseURL: 'http://192.168.1.75:5000',
     headers: {
         'Authorization': null
     }
