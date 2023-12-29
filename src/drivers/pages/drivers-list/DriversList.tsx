@@ -90,19 +90,19 @@ export default function DriversList() {
     },[])
 
     useEffect(() => {
-
         if (checkIsFirstRender()) return
 
         setPage(1)
-        setFilterChange(state => !state)
+        setFilterChange(true)
 
     },[filters])
 
     useEffect(() => {
 
-
-        debouncedFiltersDrivers(page, (page-1)*pageSize, setDrivers, filters, pageSize, setTotalDrivers, true, setNoResults, setLoading)
-
+        if(filterChange){
+            debouncedFiltersDrivers(page, (page-1)*pageSize, setDrivers, filters, pageSize, setTotalDrivers, true, setNoResults, setLoading)
+            setFilterChange(false)
+        }
     },[filterChange])
 
 
@@ -121,24 +121,33 @@ export default function DriversList() {
 
     return(
         <section className="drivers-list">
-            <FiltersLayout cleanFilters={cleanFilters} >
-                <input type="text" placeholder="Buscar por nombre" onChange={handleFiltersChange} name="id" value={filters.id}/>
-                <input type="text" placeholder="Buscar por nombre" onChange={handleFiltersChange} name="names" value={filters.names}/>
-                <input type="text" placeholder="Buscar por nombre" onChange={handleFiltersChange} name="cellphoneWork" value={filters.cellphoneWork}/>
-                <select value={filters.state} onChange={handleFiltersChange}name="state">
-                    <option value="">Todos</option>
-                    <option value="started">Empezado</option>
-                    <option value="pending_approval">Pendiente</option>
-                    <option value="rejected">Rechazado</option>
-                    <option value="suspended">Suspendido</option>
-                    <option value="approved">Aprovado</option>
-                </select>
-            </FiltersLayout>
             <div>
-                <button onClick={(event) => {
-                        event.preventDefault()
-                    }}>Buscar</button>
+                <FiltersLayout cleanFilters={cleanFilters} >
+                    <label>
+                        Estado: <select value={filters.state} onChange={handleFiltersChange} name="state">
+                        <option value="">Todos</option>
+                        <option value="started">Empezado</option>
+                        <option value="pending_approval">Pendiente</option>
+                        <option value="rejected">Rechazado</option>
+                        <option value="suspended">Suspendido</option>
+                        <option value="approved">Aprobado</option>
+                        </select> 
+                    </label>
+        
+                </FiltersLayout>
+                <div className="main-filters">
+                    <input type="text" placeholder="Buscar por nombres" onChange={handleFiltersChange} name="names" value={filters.names}/>
+                    <input type="text" placeholder="Buscar por celular" onChange={handleFiltersChange} name="cellphoneWork" value={filters.cellphoneWork}/>
+                </div>
+                <div>
+                    <button onClick={(event) => {
+                            event.preventDefault()
+                            setPage(1)
+                            setFilterChange(state => !state)
+                        }}>Buscar</button>
+                </div>
             </div>
+            
             <ListLayout page={page} pageSize={pageSize} setPage={setPage} setPageSize={setPageSize} total={totalDrivers} setTotal={setTotalDrivers} setData={setDrivers} data={drivers} filterData={filtersDrivers} filters={filters} setNoResults={setNoResults} noResults={noResults} loading={loading} setLoading={setLoading}>
                 <table className="drivers-table">
                     <thead> 

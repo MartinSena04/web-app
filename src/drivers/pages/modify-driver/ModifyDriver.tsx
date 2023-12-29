@@ -77,7 +77,7 @@ export default function ModifyDriver() {
                         <option value="pending_approval">Pendiente</option>
                         <option value="rejected">Rechazado</option>
                         <option value="suspended">Suspendido</option>
-                        <option value="approved">Aprovado</option>
+                        <option value="approved">Aprobado</option>
                     </select>
                 </div>
                 <div>

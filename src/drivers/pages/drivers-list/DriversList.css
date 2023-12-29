@@ -20,3 +20,12 @@
     justify-content: space-between;
 }
 
+.main-filters{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-evenly;
+    align-items: center;
+    border: #1e00ff 1px solid;
+    padding: 10px 0px;
+}
+

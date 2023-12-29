@@ -1,9 +1,10 @@
 import { ChangePageSize } from '../../utilites/ChangePageSize';
 import './ListLayout.css';
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 
 export default function ListLayout({children, page, pageSize, setPageSize, setPage, total, data, setTotal, setData, filters, filterData, setNoResults, noResults, loading, setLoading}){
 
+    const isPageChange = useRef(false)
     function forward(){
         if(page === 1) return
         setPage(page - 1)
@@ -16,20 +17,30 @@ export default function ListLayout({children, page, pageSize, setPageSize, setPa
 
     useEffect(() => {
 
-        if (data.length < page*pageSize && page*pageSize <= total){
-            
-            filterData(page, (page-1)*pageSize, setData,filters, pageSize, setTotal, true, setNoResults, setLoading)
-        }
         if (page*pageSize > total && total > 0) {
             setPage(Math.ceil(total/pageSize))
         }
+        if (!data[page])return
+
+        if (data[page].length < pageSize && page*pageSize <= total){
+            console.log('cambio de tamaño')
+            
+            filterData(page, (page-1)*pageSize, setData,filters, pageSize, setTotal, true, setNoResults, setLoading)
+        }
+
 
         setData(ChangePageSize(data, pageSize))
     }, [pageSize])
 
     useEffect(() => {
 
+        if (!isPageChange.current) {
+            isPageChange.current = true
+            return
+        }
+
         if (!data[page] || (data[page].length < pageSize && page*pageSize <= total)) {
+            console.log('cambio de pagina')
             filterData(page, (page-1)*pageSize, setData,filters, pageSize, setTotal,false, setNoResults, setLoading)
         }
     }, [page])
